@@ -1,4 +1,5 @@
 const fs = require("fs");
+const chalk = require("chalk");
 
 addTodo = (title, body) => {
   const todos = loadTodos();
@@ -11,9 +12,9 @@ addTodo = (title, body) => {
       status: "to-do",
     });
     saveTodo(todos);
-    console.log("New todo added!");
+    console.log(chalk.white.bgBlue.bold("New todo added!"));
   } else {
-    console.log("Todo already exists");
+    console.log(chalk.white.bgRed.bold("Todo already exists"));
   }
 };
 
@@ -44,9 +45,9 @@ editTodo = (title, newTitle, stat) => {
       }
     }
     saveTodo(todos);
-    console.log("Todo edited successfully");
+    console.log(chalk.white.bgBlue.bold("Todo edited successfully"));
   } else {
-    console.log("Todo not founded");
+    console.log(chalk.white.bgRed.bold("Todo not founded"));
   }
 };
 
@@ -56,9 +57,9 @@ deleteTodo = (title) => {
 
   if (todos.length > filtered.length) {
     saveTodo(filtered);
-    console.log("Todo deleted successfully");
+    console.log(chalk.white.bgBlue.bold("Todo deleted successfully"));
   } else {
-    console.log("Todo not founded");
+    console.log(chalk.white.bgRed.bold("Todo not founded"));
   }
 };
 

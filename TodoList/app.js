@@ -1,5 +1,6 @@
 const yargs = require("yargs");
 const todoList = require("./todoList");
+const chalk = require("chalk");
 
 // Add Command
 yargs.command({
@@ -84,9 +85,5 @@ yargs.command({
     todoList.deleteTodo(argv.title);
   },
 });
-
-yargs.default("random", function randomValue() {
-  return Math.random() * 256;
-}).argv;
 
 yargs.parse();
