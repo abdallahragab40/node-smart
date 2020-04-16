@@ -7,7 +7,8 @@ addTodo = (title, body) => {
     todos.push({
       title,
       body,
-      id: Date.now(),
+      id: Math.floor(Math.random() * 100), //Date.now()
+      status: "to-do",
     });
     saveTodo(todos);
     console.log("New todo added!");
@@ -16,18 +17,29 @@ addTodo = (title, body) => {
   }
 };
 
-listTodo = () => {
+listTodo = (s) => {
   const todos = loadTodos();
-  console.table(todos);
+  const founded = todos.find((todo) => todo.status === s);
+  if (founded) {
+    for (var i in todos) {
+      if (todos[i].status === s) {
+        console.table(todos[i]);
+        break;
+      }
+    }
+  } else {
+    console.table(todos);
+  }
 };
 
-editTodo = (title, newTitle) => {
+editTodo = (title, newTitle, stat) => {
   const todos = loadTodos();
   const founded = todos.find((todo) => todo.title === title);
   if (founded) {
     for (var i in todos) {
       if (todos[i].title == title) {
         todos[i].title = newTitle;
+        todos[i].status = stat;
         break;
       }
     }

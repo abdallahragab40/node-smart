@@ -26,8 +26,15 @@ yargs.command({
 yargs.command({
   command: "list",
   describe: "list all todos",
-  handler() {
-    todoList.listTodo();
+  builder: {
+    s: {
+      describe: "status of todos",
+      demandOption: false,
+      type: "string",
+    },
+  },
+  handler(argv) {
+    todoList.listTodo(argv.s);
   },
 });
 
@@ -51,9 +58,14 @@ yargs.command({
       demandOption: false,
       type: "number",
     },
+    stat: {
+      describe: "status of todo",
+      demandOption: false,
+      type: "string",
+    },
   },
   handler(argv) {
-    todoList.editTodo(argv.title, argv.newTitle);
+    todoList.editTodo(argv.title, argv.newTitle, argv.stat);
   },
 });
 
