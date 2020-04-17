@@ -1,29 +1,28 @@
 const fs = require("fs");
 const chalk = require("chalk");
 
-addTodo = (title, body) => {
+const addTodo = (title, body) => {
   const todos = loadTodos();
   const duplicate = todos.find((todo) => todo.title === title);
-  if (!duplicate) {
-    todos.push({
-      title,
-      body,
-      id: Math.floor(Math.random() * 100), //Date.now()
-      status: "to-do",
-    });
-    saveTodo(todos);
-    console.log(chalk.white.bgBlue.bold("New todo added!"));
-  } else {
-    console.log(chalk.white.bgRed.bold("Todo already exists"));
-  }
+  if (duplicate)
+    return console.log(chalk.white.bgRed.bold("Todo already exists"));
+
+  todos.push({
+    title,
+    body,
+    id: Math.floor(Math.random() * 100), //Date.now()
+    status: "to-do",
+  });
+  saveTodo(todos);
+  console.log(chalk.white.bgBlue.bold("New todo added!"));
 };
 
-listTodo = (s) => {
+const listTodo = (stat) => {
   const todos = loadTodos();
-  const founded = todos.find((todo) => todo.status === s);
-  if (founded) {
+  const isFound = todos.find((todo) => todo.status === stat);
+  if (isFound) {
     for (var i in todos) {
-      if (todos[i].status === s) {
+      if (todos[i].status === stat) {
         console.table(todos[i]);
         break;
       }
@@ -33,7 +32,22 @@ listTodo = (s) => {
   }
 };
 
-editTodo = (title, newTitle, stat) => {
+const displayTodo = () => {
+  const todos = loadTodos();
+
+  return todos
+    .map((element) => {
+      let items = `
+    <p>Title : ${element.title}</p>
+    <p>Body : ${element.body}</p>
+    <p>Status : ${element.status}</p>
+    `;
+      return items;
+    })
+    .join("<hr />");
+};
+
+const editTodo = (title, newTitle, stat) => {
   const todos = loadTodos();
   const founded = todos.find((todo) => todo.title === title);
   if (founded) {
@@ -51,7 +65,7 @@ editTodo = (title, newTitle, stat) => {
   }
 };
 
-deleteTodo = (title) => {
+const deleteTodo = (title) => {
   const todos = loadTodos();
   const filtered = todos.filter((todo) => todo.title !== title);
 
@@ -63,19 +77,15 @@ deleteTodo = (title) => {
   }
 };
 
-loadTodos = () => {
-  try {
-    const dataBuffer = fs.readFileSync("todo.json");
-    const dataJson = dataBuffer.toString();
-    return JSON.parse(dataJson);
-  } catch (e) {
-    return [];
-  }
+const loadTodos = () => {
+  const dataBuffer = fs.readFileSync("todo.json");
+  const dataJson = dataBuffer.toString() || [];
+  return JSON.parse(dataJson);
 };
 
-saveTodo = (todos) => {
+const saveTodo = (todos) => {
   const dataJson = JSON.stringify(todos);
   fs.writeFileSync("todo.json", dataJson);
 };
 
-module.exports = { addTodo, listTodo, editTodo, deleteTodo };
+module.exports = { addTodo, listTodo, editTodo, deleteTodo, displayTodo };

@@ -1,6 +1,5 @@
 const yargs = require("yargs");
 const todoList = require("./todoList");
-const chalk = require("chalk");
 
 // Add Command
 yargs.command({
@@ -19,7 +18,8 @@ yargs.command({
     },
   },
   handler(argv) {
-    todoList.addTodo(argv.title, argv.body);
+    const { title, body } = argv;
+    todoList.addTodo(title, body);
   },
 });
 
@@ -28,14 +28,14 @@ yargs.command({
   command: "list",
   describe: "list all todos",
   builder: {
-    s: {
+    stat: {
       describe: "status of todos",
       demandOption: false,
       type: "string",
     },
   },
   handler(argv) {
-    todoList.listTodo(argv.s);
+    todoList.listTodo(argv.stat);
   },
 });
 
