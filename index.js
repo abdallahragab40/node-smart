@@ -1,118 +1,100 @@
-const http = require("http");
+const express = require("express");
+const path = require("path");
 const todoList = require("./todoList");
-const fs = require("fs");
 
-const port = process.env.PORT || 4410;
+const app = express();
+app.use(express.json());
+const port = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
-  switch (req.url) {
-    case "/":
-    case "/home":
-      res.setHeader("Content-Type", "text/html");
-      res.end(`
-        <head>
-          <link rel="stylesheet" href="/style.css"/>
-        </head>
-        <body>
-          <h1> TO DO APPLICATION </h1>
-          <a href="/nature">Nature</a>
-          <a href="/quotes">Quotes</a>
-          ${todoList.displayTodo()}
-        </body>
-        `);
-      break;
+const publicPath = path.join(__dirname, "./public");
 
-    case "/style.css":
-      res.setHeader("Content-Type", "text/css");
-      res.end(`
-        body {
-          background-color : #f2f2f2
-        }
-        `);
-      break;
+app.use(express.static(publicPath));
 
-    case "/nature":
-      res.setHeader("Content-Type", "text/html");
-      res.end(`
-      <head>
-          <link rel="stylesheet" href="/image.css"/>
-      </head>
-      <body>
-        <h1>Nature Page</h1>
-        <div>
-          <a href="/">Back Home</a>
-        </div>
-        <img src="/nature1" />
-        <img src="/nature2" />
-      </body>
-      `);
-      break;
-
-    case "/image.css":
-      res.setHeader("Content-Type", "text/css");
-      res.end(`
-          img {
-            width:500px;
-            height: auto;
-          }
-          `);
-      break;
-
-    case "/nature1":
-      res.setHeader("Content-Type", "image/jpeg");
-      const natureImage1 = fs.readFileSync("./Nature/2-nature.jpg");
-      res.end(natureImage1);
-      break;
-
-    case "/nature2":
-      res.setHeader("Content-Type", "image/jpeg");
-      const natureImage2 = fs.readFileSync("./Nature/foresttb-l.jpg");
-      res.end(natureImage2);
-      break;
-
-    case "/quotes":
-      res.setHeader("Content-Type", "text/html");
-      res.end(`
-      <head>
-        <link rel="stylesheet" href="/image.css"/>
-      </head>
-      <body>
-          <h1>Quotes Page</h1>
-          <div>
-            <a href="/">Back Home</a>
-          </div>
-          <img src="/quote1" />
-          <img src="/quote2" />
-      </body>
-        `);
-      break;
-
-    case "/quote1":
-      res.setHeader("Content-Type", "image/jpeg");
-      const quoteImage1 = fs.readFileSync("./Quotes/Linus.jpg");
-      res.end(quoteImage1);
-      break;
-
-    case "/quote2":
-      res.setHeader("Content-Type", "image/jpeg");
-      const quoteImage2 = fs.readFileSync("./Quotes/Think twice.jpg");
-      res.end(quoteImage2);
-      break;
-
-    case "/favicon.ico":
-      res.setHeader("Content-Type", "image/png");
-      const favicon = fs.readFileSync("./favicon.png");
-      res.end(favicon);
-      break;
-
-    default:
-      res.statusCode = 404;
-      res.setHeader("Content-Type", "text/html");
-      res.end("<h1>Error, the URL doesn't exist</h1>");
-      break;
+// GET
+app.get("/", (req, res) => {
+  try {
+    res.send("Home Page");
+  } catch (e) {
+    res.status(500).send(e);
   }
 });
 
-server.listen(port, () => {
-  console.log(`Server running at port ${port}`);
+app.get("/todos", async (req, res) => {
+  try {
+    const todos = await todoList.displayTodo();
+    res.send(todos);
+  } catch (e) {
+    res.status(500).send(e);
+  }
+});
+
+app.get("*", (req, res) => {
+  res.send("Error, this url is not found");
+});
+
+// POST
+app.post("/todos", async (req, res) => {
+  try {
+    const { title, body, username } = req.body;
+    const todo = await todoList.addTodo(title, body, username);
+    res.status(201).send(req.body);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+// Enhancement
+
+app.post("/register", async (req, res) => {
+  const registeredUser = Object.keys(req.body);
+  const allowedInserted = ["username", "password", "firstName"];
+  const isValidRegister = registeredUser.every((insert) =>
+    allowedInserted.includes(insert)
+  );
+
+  if (!isValidRegister) {
+    return res.status(404).send("Error : Invalid Register");
+  }
+  try {
+    const { username, password, firstName } = req.body;
+    const user = await todoList.register(username, password, firstName);
+    res.send("user was registered successfully.");
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const user = await todoList.login(req.body.username);
+    res.send(user);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+// DELETE
+app.delete("/todos/:id", async (req, res) => {
+  try {
+    const todo = await todoList.deleteTodo(Number(req.params.id));
+    res.send(todo);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+// EDIT
+app.patch("/todos/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { title, status } = req.body;
+    const todo = await todoList.editTodo(title, status, id);
+    res.send(todo);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+app.listen(port, () => {
+  console.log("App is running in port " + port);
 });

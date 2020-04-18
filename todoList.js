@@ -1,7 +1,42 @@
 const fs = require("fs");
 const chalk = require("chalk");
 
-const addTodo = (title, body) => {
+const register = (username, password, firstName) => {
+  const todos = loadTodos();
+  const duplicate = todos.find((todo) => todo.username === username);
+  if (duplicate)
+    return console.log(chalk.white.bgRed.bold("User already exists"));
+  todos.push({
+    username,
+    password,
+    firstName,
+    loggedIn: false,
+  });
+
+  saveTodo(todos);
+  console.log(chalk.white.bgBlue.bold("New User added!"));
+};
+
+const login = (username) => {
+  const todos = loadTodos();
+  const isFound = todos.find((todo) => todo.username === username);
+  console.log(isFound);
+
+  if (isFound) {
+    for (var i in todos) {
+      if (todos[i].username == username) {
+        todos[i].loggedIn = true;
+        break;
+      }
+    }
+    saveTodo(todos);
+    console.log(chalk.white.bgBlue.bold("user logged in successfully"));
+  } else {
+    console.log(chalk.white.bgRed.bold("invalid login"));
+  }
+};
+
+const addTodo = (title, body, username) => {
   const todos = loadTodos();
   const duplicate = todos.find((todo) => todo.title === title);
   if (duplicate)
@@ -10,6 +45,7 @@ const addTodo = (title, body) => {
   todos.push({
     title,
     body,
+    username,
     id: Math.floor(Math.random() * 100), //Date.now()
     status: "to-do",
   });
@@ -38,8 +74,10 @@ const displayTodo = () => {
   return todos
     .map((element) => {
       let items = `
+    <h2>To Do</h2> 
     <p>Title : ${element.title}</p>
     <p>Body : ${element.body}</p>
+    <p>Username : ${element.username}</p>
     <p>Status : ${element.status}</p>
     `;
       return items;
@@ -47,13 +85,14 @@ const displayTodo = () => {
     .join("<hr />");
 };
 
-const editTodo = (title, newTitle, stat) => {
+const editTodo = (title, stat, id) => {
   const todos = loadTodos();
-  const founded = todos.find((todo) => todo.title === title);
-  if (founded) {
+  const isFound = todos.find((todo) => todo.id === id);
+
+  if (isFound) {
     for (var i in todos) {
-      if (todos[i].title == title) {
-        todos[i].title = newTitle;
+      if (todos[i].id == id) {
+        todos[i].title = title;
         todos[i].status = stat;
         break;
       }
@@ -65,9 +104,9 @@ const editTodo = (title, newTitle, stat) => {
   }
 };
 
-const deleteTodo = (title) => {
+const deleteTodo = (id) => {
   const todos = loadTodos();
-  const filtered = todos.filter((todo) => todo.title !== title);
+  const filtered = todos.filter((todo) => todo.id !== id);
 
   if (todos.length > filtered.length) {
     saveTodo(filtered);
@@ -88,4 +127,12 @@ const saveTodo = (todos) => {
   fs.writeFileSync("todo.json", dataJson);
 };
 
-module.exports = { addTodo, listTodo, editTodo, deleteTodo, displayTodo };
+module.exports = {
+  addTodo,
+  listTodo,
+  editTodo,
+  deleteTodo,
+  displayTodo,
+  register,
+  login,
+};

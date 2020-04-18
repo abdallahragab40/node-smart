@@ -16,10 +16,15 @@ yargs.command({
       demandOption: true,
       type: "string",
     },
+    username: {
+      describe: "name of user",
+      demandOption: true,
+      type: "string",
+    },
   },
   handler(argv) {
-    const { title, body } = argv;
-    todoList.addTodo(title, body);
+    const { title, body, username } = argv;
+    todoList.addTodo(title, body, username);
   },
 });
 
@@ -45,28 +50,24 @@ yargs.command({
   describe: "edit todo",
   builder: {
     title: {
-      describe: "title of edit todo",
+      describe: "new title of todo",
       demandOption: true,
       type: "string",
     },
-    newTitle: {
-      describe: "new title",
+
+    status: {
+      describe: "status of todo",
       demandOption: true,
       type: "string",
     },
     id: {
-      describe: "id of todo",
+      describe: "status of todo",
       demandOption: false,
       type: "number",
     },
-    stat: {
-      describe: "status of todo",
-      demandOption: false,
-      type: "string",
-    },
   },
   handler(argv) {
-    todoList.editTodo(argv.title, argv.newTitle, argv.stat);
+    todoList.editTodo(argv.title, argv.status, argv.id);
   },
 });
 
@@ -83,6 +84,49 @@ yargs.command({
   },
   handler(argv) {
     todoList.deleteTodo(argv.title);
+  },
+});
+
+// Register
+yargs.command({
+  command: "register",
+  describe: "register user",
+  builder: {
+    username: {
+      describe: "username of user",
+      demandOption: true,
+      type: "string",
+    },
+    password: {
+      describe: "password of user",
+      demandOption: true,
+      type: "string",
+    },
+    firstName: {
+      describe: "firstName of user",
+      demandOption: true,
+      type: "string",
+    },
+  },
+  handler(argv) {
+    const { username, password, firstName } = argv;
+    todoList.register(username, password, firstName);
+  },
+});
+
+// Login
+yargs.command({
+  command: "login",
+  describe: "login user",
+  builder: {
+    username: {
+      describe: "username of user",
+      demandOption: true,
+      type: "string",
+    },
+  },
+  handler(argv) {
+    todoList.login(argv.username);
   },
 });
 
